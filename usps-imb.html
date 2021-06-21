@@ -1,0 +1,104 @@
+<html>
+<head>
+<title>Intelligent Mail Barcode Decoder</title>
+<meta http-equiv="Content-Script-Type" content="text/javascript">
+<meta http-equiv="Content-Style-Type" content="text/css">
+</head>
+<body>
+
+<h2>Intelligent Mail Barcode Decoder</h2>
+
+<p>
+Please enter your barcode below, using the following characters:<br>
+<b>A</b> = Ascending bar, <b>D</b> = Descending bar,
+<b>F</b> = Full bar, <b>T</b> or <b>S</b> = Track (short) bar 
+</p>
+
+<!-- ===================== Cut Here ===================== -->
+<!-- /uploads/2/9/1/4/2914793/usps-imb.js -->
+<script type="text/javascript" src="usps-imb.js"></script>
+
+<form name="decode_form" action="fail.html" method="get">
+<input name="barcode" type="text" size=80 onkeyup="do_update()">
+<input name="decode" type="submit" value="Decode">
+</form>
+<script type="text/javascript">
+document.forms.decode_form.action = "javascript:do_decode()";
+document.write('<table id="barcodetable" cellspacing="0" border="0">');
+var i, j;
+for (i = 0; i < 3; i++) {
+  document.write('<tr id="row'+i+'">');
+  for (j = 0; j < 129; j++)
+    document.write('<td style="width: 2px; height: 8px"></td>');
+  document.write("</tr>");
+}
+document.write("</table>");
+</script>
+<span id="message_span"></span>
+
+<form name="encode_form" action="fail.html" method="get">
+<table>
+<tr>
+<td>ZIP Code:</td>
+<td>
+<input name="zip" type="text" size=5>-<input name="plus4" type="text" size=4>
+<span id="zip_lookup"></span>
+</td>
+</tr>
+<tr>
+<td>Delivery Point:</td>
+<td><input name="delivery_pt" type="text" size=2></td>
+</tr>
+<tr>
+<td>Barcode ID:</td>
+<td><input name="barcode_id" type="text" size=2></td>
+</tr>
+<tr>
+<td>Service Type:</td>
+<td><input name="service_type" type="text" size=3></td>
+</tr>
+<tr>
+<td>Mailer ID:</td>
+<td><input name="mailer_id" type="text" size=9></td>
+</tr>
+<tr>
+<td>Serial Number:</td>
+<td><input name="serial_num" type="text" size=9></td>
+</tr>
+<tr>
+<td></td>
+<td><input name="encode" type="submit" value="Encode"></td>
+</tr>
+</table>
+</form>
+<script type="text/javascript">
+document.forms.encode_form.action = "javascript:do_encode()";
+</script>
+<!-- ===================== Cut Here ===================== -->
+
+<p>Delivery point is "usually" the last two digits of the street address.</p>
+
+<h2>Sample Data</h2>
+<p>
+Barcode ID = 01, Service Type = 234, Mailer ID = 567094, Serial Number = 987654321
+<ul>
+<li>
+<code>ATTFATTDTTADTAATTDTDTATTDAFDDFADFDFTFFFFFTATFAAAATDFFTDAADFTFDTDT</code>
+No address data.
+</li>
+<li>
+<code>DTTAFADDTTFTDTFTFDTDDADADAFADFATDDFTAAAFDTTADFAAATDFDTDFADDDTDFFT</code>
+ZIP = 01234
+</li>
+<li>
+<code>ADFTTAFDTTTTFATTADTAAATFTFTATDAAAFDDADATATDTDTTDFDTDATADADTDFFTFA</code>
+ZIP+4 = 01234+5678
+</li>
+<li>
+<code>AADTFFDFTDADTAADAATFDTDDAAADDTDTTDAFADADDDTFFFDDTTTADFAAADFTDAADA</code>
+ZIP+4 = 01234+5678, Delivery Point = 91
+</li>
+</p>
+
+</body>
+</html>
