@@ -17,6 +17,8 @@ Please enter your barcode below, using the following characters:<br>
 <!-- ===================== Cut Here ===================== -->
 <!-- /uploads/2/9/1/4/2914793/usps-imb.js -->
 <script type="text/javascript" src="usps-imb.js"></script>
+<script type="text/javascript" src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery-csv/1.0.21/jquery.csv.min.js"></script>
 
 <form name="decode_form" action="fail.html" method="get">
 <input name="barcode" type="text" size=80 onkeyup="do_update()">
@@ -98,7 +100,117 @@ ZIP+4 = 01234+5678
 <code>AADTFFDFTDADTAADAATFDTDDAAADDTDTTDAFADADDDTFFFDDTTTADFAAADFTDAADA</code>
 ZIP+4 = 01234+5678, Delivery Point = 91
 </li>
+</ul>
 </p>
+
+<script>
+  function decode_csv(column_index){
+    
+    var file_name = $('#file_name').val();
+    var column_index = $('#column_index').val();
+    clear_errors()
+    
+    $( document ).ready(function() {
+      $.ajax({
+        type: "GET",  
+        url: file_name,
+        dataType: "text",       
+        success: function(response)  
+        {
+          try{
+            var arrays = $.csv.toArrays(response);
+
+            for (var i = 1; i < arrays.length; i++) {
+              var decoded_data = decode_barcode(arrays[i][column_index]);
+              var error_message = decoded_data["message"];
+              if(error_message){
+                arrays[i][column_index] = error_message;
+              }else{
+                var decoded_value = 
+                  decoded_data.barcode_id + 
+                  decoded_data.service_type + 
+                  decoded_data.mailer_id +
+                  decoded_data.serial_num +
+                  decoded_data.zip + 
+                  decoded_data.plus4 +
+                  decoded_data.delivery_pt;
+
+                arrays[i][column_index] = decoded_value;
+              }
+            }
+
+            download("output.csv", $.csv.fromArrays(arrays));
+
+          }catch{
+            $('#csv_parse_error').css('display', 'inherit');
+          }          
+        },
+        error: function(){
+          $('#file_path_error').css('display', 'inherit');
+        }   
+      });
+    });
+}
+
+function download(filename, text) {
+  
+    var element = document.createElement('a');
+    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+    element.setAttribute('download', filename);
+
+    element.style.display = 'none';
+    document.body.appendChild(element);
+
+    element.click();
+
+    document.body.removeChild(element);
+}
+
+function clear_errors(){
+  $('#file_path_error').css('display', 'none');
+  $('#csv_parse_error').css('display', 'none');
+}
+</script>
+
+<h2>Decode CSV Column</h2>
+<p>
+Place a CSV in the root directory of this project. Enter the CSV file name (without the path) and 0 based index of the column containing the data for decoding. 
+</p>
+
+<form name="decode_csv">
+  <table>
+    <tr>
+      <td>File Name: </td>
+      <td>
+        <input id="file_name" type="text" value="input.csv">
+      </td>
+    </tr>
+    <td>Column Index: </td>
+    <td>
+      <input id="column_index" type="number" value="0">
+    </td>
+    <tr>
+      <td></td>
+      <td>
+        <button type="submit">Decode</button>
+      </td>
+    </tr>
+    <tr>
+      <td></td>
+      <td style="color: red;">
+        <div id="file_path_error" style="display: none;">
+          Error finding CSV - ensure file name is correctly entered and exists in root directory
+        </div>
+        <div id="csv_parse_error" style="display: none;">
+          Error parsing CSV file
+        </div>
+      </td>
+    </tr>
+  </table>
+</form>
+<script>
+  document.forms.decode_csv.action = "javascript:decode_csv()";
+</script>
 
 </body>
 </html>
