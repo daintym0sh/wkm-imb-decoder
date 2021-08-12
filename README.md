@@ -4,7 +4,7 @@ This JS program is an enhancement of the following project: http://bobcodes.weeb
 
 #
 
-It adds an additional section for decoding a column in a CSV file containing a barcode with following output format:
+It adds an additional section at the bottom of the page, which can be used for decoding a column in a CSV file containing a barcode with following output format:
 
 Barcode_ID|Service|Mailer_ID|Serial_No|ZIP_Code|Delivery_Point
 
